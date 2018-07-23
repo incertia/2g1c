@@ -37,3 +37,8 @@ linking it into your c executable and then performing some hooks
 2. inject your haskell application (`$ sudo ./injector <pid>
    libhaskell-hook.dylib`)
 3. profit
+
+## goals
+
+1. provide a better interface for closures
+2. extract the numbers that are added togehter in `base GHC.Num +`
