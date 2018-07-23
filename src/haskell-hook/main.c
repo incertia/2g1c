@@ -15,6 +15,7 @@ extern void my_plus();
 void
 print_closure(StgPtr closure,
               const char *name,
+              int indent,
               stg_regset_t *regs)
 {
   uint64_t tag = (uint64_t)closure & 0x7;
@@ -22,14 +23,12 @@ print_closure(StgPtr closure,
   StgPtr _c = (StgPtr)c;
   const char *where;
   const StgInfoTable *i;
+  char fmt[4096];
   StgHalfWord ctype;
-  // const StgRetInfoTable *r;
-  // const StgFunInfoTable *f;
-  // const StgThunkInfoTable *t;
-  // const StgConInfoTable *c;
 
   if (!closure) {
-    fprintf(stderr, "null pointer %s\n", name);
+    snprintf(fmt, 4096, "%%%ds%s: null pointer\n", indent, name);
+    fprintf(stderr, fmt, "");
     return;
   }
 
@@ -43,27 +42,58 @@ print_closure(StgPtr closure,
   }
 
   i = c->header.info; 
-  printf("%s closure %s at %p...\n", where, name, closure);
-  printf("tag=%llx\n", tag);
-  printf("real addr=%p\n", c);
-  printf("info ptr=%p\n", i);
+  snprintf(fmt, 4096, "%%%ds%s: %s closure at %p...\n", indent, name, where,
+           closure);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: tag=%llx\n", indent, name, tag);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: real addr=%p\n", indent, name, c);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: info ptr=%p\n", indent, name, i);
+  printf(fmt, "");
   i--;
-  printf("info tbl=%p\n", i);
+  snprintf(fmt, 4096, "%%%ds%s: info tbl=%p\n", indent, name, i);
+  printf(fmt, "");
 
   ctype = i->type;
 
-  if (pointers_first(ctype)) {
-    printf("closure payload pointers: %u\n", i->layout.payload.ptrs);
-    printf("closure payload non-pointers: %u\n", i->layout.payload.nptrs);
-  } else if (bitmap(ctype)) {
-    printf("closure layout: 0x%llx\n", i->layout.bitmap);
-  } else {
-    fprintf(stderr, "print_closure: unknown layout field format: %d\n", ctype);
-  }
-  printf("closure type: %s\n", closure_type_str(ctype));
+  snprintf(fmt, 4096, "%%%ds%s: closure type: %s\n", indent, name,
+           closure_type_str(ctype));
+  printf(fmt, "");
 
-  if (ctype == CONSTR_0_1) {
-    /* examine this constructed object */
+  if (ctype >= N_CLOSURE_TYPES) {
+    fprintf(stderr, "not a valid closure\n");
+    return;
+  }
+
+  if (pointers_first(ctype)) {
+    int j;
+    int n;
+    snprintf(fmt, 4096, "%%%ds%s: closure payload pointers: %u\n", indent, name,
+             i->layout.payload.ptrs);
+    printf(fmt, "");
+    snprintf(fmt, 4096, "%%%ds%s: closure payload non-pointers: %u\n", indent,
+             name, i->layout.payload.nptrs);
+    printf(fmt, "");
+
+    n = i->layout.payload.ptrs + i->layout.payload.nptrs;
+
+    for (j = 0; j < n; j++) {
+      snprintf(fmt, 4096, "%%%ds%s: payload[%d]=%p\n", indent, name, j,
+               c->payload[j]);
+      printf(fmt, "");
+      // if (j < i->layout.payload.ptrs) {
+      //   print_closure((StgPtr)c->payload[j], "PAYLOADPTR", indent + 2, regs);
+      // }
+    }
+  } else if (bitmap(ctype)) {
+    snprintf(fmt, 4096, "%%%ds%s: closure layout: 0x%llx\n", indent, name,
+             i->layout.bitmap);
+    printf(fmt, "");
+  } else {
+    snprintf(fmt, 4096, "%%%ds%s: print_closure: unknown layout field format: "
+             "%d\n", indent, name, ctype);
+    fprintf(stderr, fmt, "");
   }
 }
 
@@ -89,12 +119,13 @@ void hk_plus()
   getregs(&regs);
   printf("---(+)---\n");
   printregs(&regs);
-  print_closure(regs.r1.a, "R1", &regs);
-  print_closure(regs.r2.a, "R2", &regs);
-  print_closure(regs.r3.a, "R3", &regs);
-  print_closure(regs.r4.a, "R4", &regs);
-  print_closure(regs.r5.a, "R5", &regs);
-  print_closure(regs.r6.a, "R6", &regs);
+  print_closure(regs.r1.a, "R1", 0, &regs);
+  print_closure(regs.r2.a, "R2", 0, &regs);
+  print_closure(regs.r3.a, "R3", 0, &regs);
+  print_closure(regs.r4.a, "R4", 0, &regs);
+  print_closure(regs.r5.a, "R5", 0, &regs);
+  print_closure(regs.r6.a, "R6", 0, &regs);
+  print_closure(regs.sp, "*Sp", 0, &regs);
 }
 
 void hook(void *target_func, void *hook_func)
