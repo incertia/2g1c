@@ -1,0 +1,9 @@
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/Makefile
+.*.sw*
+/src/ghc/
+/injector
+/libbootstrap.dylib
+/libhaskell-hook.dylib

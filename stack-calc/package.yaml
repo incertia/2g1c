@@ -1,0 +1,36 @@
+name:                stack-calc
+version:             0.1.0.0
+synopsis:            Postfix calculator using a monadic stack
+#description:
+license:             BSD3
+author:              Will Song
+maintainer:          Will.Song@nccgroup.trust
+copyright:           2018 Will Song
+category:            Web
+extra-source-files:
+- README.md
+
+dependencies:
+  - base >= 4.7 && < 5
+  - parsec
+
+ghc-options:
+  - -O0
+  - -g
+
+executables:
+  stack-calc:
+    source-dirs:      src
+    main:             Main.hs
+    dependencies:
+      - haskeline
+      - stack-calc
+      - unix
+
+library:
+  source-dirs:        lib
+  exposed-modules:
+    - Interpreter
+    - Parser
+  dependencies:
+    - mtl
