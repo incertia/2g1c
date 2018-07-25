@@ -38,5 +38,8 @@ extern void getregs(stg_regset_t *);
 const char *const closure_type_str(StgHalfWord type);
 int pointers_first(StgHalfWord type);
 int bitmap(StgHalfWord type);
+void printregs(stg_regset_t *regs);
+void print_closure(StgPtr closure, const char *name, int indent,
+                   stg_regset_t *regs);
 
 #endif

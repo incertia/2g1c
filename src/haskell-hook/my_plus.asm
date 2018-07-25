@@ -1,4 +1,5 @@
 global _my_plus
+global _zp_closure
 ; global _old_plus
 
 section .text
@@ -29,8 +30,11 @@ _my_plus:
   add qword [rsp], 0x9
   ret
 .garbage:
+  ; we need to load rbx with _base_GHCziNum_zp_closure, which is kind of
+  ; difficult unless we have an extra variable to read
+  mov rbx, [rel _zp_closure]
   jmp qword [r13 - 0x08]
 
-; section .bss
-; 
-; _old_plus: resq 1
+section .bss
+
+_zp_closure: resq 1

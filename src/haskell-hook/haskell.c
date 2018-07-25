@@ -1,5 +1,7 @@
 #include "haskell.h"
 
+#include <stdio.h>
+
 /* stolen from rts/ClosureFlags.c */
 StgWord16 closure_flags[] = {
 
@@ -230,4 +232,106 @@ int
 bitmap(StgHalfWord type)
 {
   return closure_flags[type] & _BTM;
+}
+
+void printregs(stg_regset_t *regs)
+{
+  printf("BaseReg=%p\n", (void *)regs->basereg);
+  printf("Sp=%p\n", regs->sp);
+  printf("SpLim=%p\n", regs->splim);
+  printf("Hp=%p\n", regs->hp);
+  printf("HpLim=%p\n", regs->basereg->rHpLim);
+  printf("R1=%p\n", regs->r1.a);
+  printf("R2=%p\n", regs->r2.a);
+  printf("R3=%p\n", regs->r3.a);
+  printf("R4=%p\n", regs->r4.a);
+  printf("R5=%p\n", regs->r5.a);
+  printf("R6=%p\n", regs->r6.a);
+  printf("MachSp=%p\n", regs->machsp);
+}
+
+void
+print_closure(StgPtr closure,
+              const char *name,
+              int indent,
+              stg_regset_t *regs)
+{
+  uint64_t tag = (uint64_t)closure & 0x7;
+  StgClosure *c = (StgClosure *)((uint64_t)closure & ~0x7);
+  StgPtr _c = (StgPtr)c;
+  const char *where;
+  const StgInfoTable *i;
+  char fmt[4096];
+  StgHalfWord ctype;
+
+  if (!closure) {
+    snprintf(fmt, 4096, "%%%ds%s: null pointer\n", indent, name);
+    fprintf(stderr, fmt, "");
+    return;
+  }
+
+  if (_c >= regs->sp) {
+    where = "STACK";
+  } else if (_c <= regs->hp &&
+             _c >= regs->basereg->rCurrentNursery->start) {
+    where = "HEAP";
+  } else {
+    where = "???";
+  }
+
+  i = c->header.info; 
+  snprintf(fmt, 4096, "%%%ds%s: %s closure at %p...\n", indent, name, where,
+           closure);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: tag=%llx\n", indent, name, tag);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: real addr=%p\n", indent, name, c);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: info ptr=%p\n", indent, name, i);
+  printf(fmt, "");
+  i--;
+  snprintf(fmt, 4096, "%%%ds%s: info tbl=%p\n", indent, name, i);
+  printf(fmt, "");
+
+  ctype = i->type;
+
+  snprintf(fmt, 4096, "%%%ds%s: closure type: %s (%d)\n", indent, name,
+           closure_type_str(ctype), ctype);
+  printf(fmt, "");
+
+  if (ctype >= N_CLOSURE_TYPES) {
+    snprintf(fmt, 4096, "%%%ds%s: not a valid closure\n", indent, name);
+    fprintf(stderr, fmt, "");
+    return;
+  }
+
+  if (pointers_first(ctype)) {
+    int j;
+    int n;
+    snprintf(fmt, 4096, "%%%ds%s: closure payload pointers: %u\n", indent, name,
+             i->layout.payload.ptrs);
+    printf(fmt, "");
+    snprintf(fmt, 4096, "%%%ds%s: closure payload non-pointers: %u\n", indent,
+             name, i->layout.payload.nptrs);
+    printf(fmt, "");
+
+    n = i->layout.payload.ptrs + i->layout.payload.nptrs;
+
+    for (j = 0; j < n; j++) {
+      snprintf(fmt, 4096, "%%%ds%s: payload[%d]=%p\n", indent, name, j,
+               c->payload[j]);
+      printf(fmt, "");
+      // if (j < i->layout.payload.ptrs) {
+      //   print_closure((StgPtr)c->payload[j], "PAYLOADPTR", indent + 2, regs);
+      // }
+    }
+  } else if (bitmap(ctype)) {
+    snprintf(fmt, 4096, "%%%ds%s: closure layout: 0x%llx\n", indent, name,
+             i->layout.bitmap);
+    printf(fmt, "");
+  } else {
+    snprintf(fmt, 4096, "%%%ds%s: print_closure: unknown layout field format: "
+             "%d\n", indent, name, ctype);
+    fprintf(stderr, fmt, "");
+  }
 }

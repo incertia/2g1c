@@ -27,8 +27,8 @@ add_library(haskell-hook SHARED src/haskell-hook/libudis86/input.c
   src/haskell-hook/libudis86/syn.c src/haskell-hook/libudis86/udis86.c
   src/haskell-hook/libudis86/syn-att.c src/haskell-hook/libudis86/decode.c
   src/haskell-hook/libudis86/itab.c src/haskell-hook/main.c
-  src/haskell-hook/haskell.c
-  src/haskell-hook/my_plus.asm src/haskell-hook/stgreg.asm)
+  src/haskell-hook/hook.c src/haskell-hook/zp.c src/haskell-hook/haskell.c
+  src/haskell-hook/zp.asm src/haskell-hook/stgreg.asm)
 
 include_directories(haskell-hook ./src/ghc/includes)
 target_compile_definitions(haskell-hook PRIVATE NO_GLOBAL_REG_DECLS)
