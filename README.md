@@ -31,12 +31,22 @@ linking it into your c executable and then performing some hooks
 4. wait 5 years for ghc to finish building
 5. use CMake to generate build files of your own choice
 6. `$ make`
+   * this may require `stack ghc -- -fobject-code unsafe_zp.hs`
 
 ## profiting
 1. launch your haskell application (`$ stack exec stack-calc`)
 2. inject your haskell application (`$ sudo ./injector <pid>
    libhaskell-hook.dylib`)
 3. profit
+
+## comments
+1. laziness makes it very hard to actually pull out values
+2. `base_GHCziNum_zdfNumInteger_closure` is nowhere to be found when we are in
+   `base_GHCziNum_zp_info`?
+3. gluing `safe_weird_zp` to `NumInteger_closure` causes it to return the
+   constant `2199023255808 = 0x20000000100` which is very weird
+4. gluing the other functions `unsafe_zp'` and `unsafe_zp''` and `foreign_zp`
+   cause the runtime to crash
 
 ## goals
 

@@ -16,6 +16,7 @@ typedef void CostCentreStack;
 #include <rts/storage/Block.h>
 #include <rts/storage/Closures.h>
 #include <rts/storage/ClosureTypes.h>
+#include <rts/storage/FunTypes.h>
 #include <rts/storage/InfoTables.h>
 // #include <rts/storage/ClosureMacros.h>
 
@@ -36,10 +37,15 @@ typedef struct stg_regset_t {
 extern void getregs(stg_regset_t *);
 
 const char *const closure_type_str(StgHalfWord type);
+const char *const fun_type_str(StgWord type);
 int pointers_first(StgHalfWord type);
 int bitmap(StgHalfWord type);
 void printregs(stg_regset_t *regs);
 void print_closure(StgPtr closure, const char *name, int indent,
                    stg_regset_t *regs);
+void print_function(StgPtr closure, const char *name, int indent,
+                    stg_regset_t *regs);
+void print_small_bitmap(StgWord bitmap);
+void print_large_bitmap(StgLargeBitmap *bitmap);
 
 #endif

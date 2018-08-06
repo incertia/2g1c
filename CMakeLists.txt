@@ -11,6 +11,7 @@ set(CMAKE_CXX_FLAGS "-pthread -fmessage-length=0 -fdiagnostics-show-note-include
 
 set(CMAKE_CXX_LINK_FLAGS "-pthread")
 set(CMAKE_C_LINK_FLAGS "-pthread")
+set(GHC_HOME "$ENV{HOME}/.stack/programs/x86_64-osx/ghc-8.4.3/lib/ghc-8.4.3")
 
 #set(CMAKE_SHARED_LINKER_FLAGS "-read_only_relocs suppress")
 
@@ -28,7 +29,17 @@ add_library(haskell-hook SHARED src/haskell-hook/libudis86/input.c
   src/haskell-hook/libudis86/syn-att.c src/haskell-hook/libudis86/decode.c
   src/haskell-hook/libudis86/itab.c src/haskell-hook/main.c
   src/haskell-hook/hook.c src/haskell-hook/zp.c src/haskell-hook/haskell.c
-  src/haskell-hook/zp.asm src/haskell-hook/stgreg.asm)
+  src/haskell-hook/zp.asm src/haskell-hook/stgreg.asm
+  src/haskell-hook/unsafe_zp.o src/haskell-hook/foreign_c_add.c)
+
+target_link_libraries(haskell-hook
+  ${GHC_HOME}/rts/libHSrts.a
+  ${GHC_HOME}/rts/libCffi.a
+  ${GHC_HOME}/base-4.11.1.0/libHSbase-4.11.1.0.a
+  ${GHC_HOME}/ghc-prim-0.5.2.0/libHSghc-prim-0.5.2.0.a
+  ${GHC_HOME}/integer-gmp-1.0.2.0/libHSinteger-gmp-1.0.2.0.a
+  iconv
+  )
 
 include_directories(haskell-hook ./src/ghc/includes)
 target_compile_definitions(haskell-hook PRIVATE NO_GLOBAL_REG_DECLS)

@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+const StgWord *stg_arg_stuff;
+
 /* stolen from rts/ClosureFlags.c */
 StgWord16 closure_flags[] = {
 
@@ -222,6 +224,73 @@ closure_type_str(StgHalfWord type)
   }
 }
 
+const char *const
+fun_type_str(StgWord type)
+{
+  switch (type) {
+  case ARG_GEN:
+    return "ARG_GEN";
+  case ARG_GEN_BIG:
+    return "ARG_GEN_BIG";
+  case ARG_BCO:
+    return "ARG_BCO";
+  case ARG_NONE:
+    return "ARG_NONE";
+  case ARG_N:
+    return "ARG_N";
+  case ARG_P:
+    return "ARG_P";
+  case ARG_F:
+    return "ARG_F";
+  case ARG_D:
+    return "ARG_D";
+  case ARG_L:
+    return "ARG_L";
+  case ARG_V16:
+    return "ARG_V16";
+  case ARG_V32:
+    return "ARG_V32";
+  case ARG_V64:
+    return "ARG_V64";
+  case ARG_NN:
+    return "ARG_NN";
+  case ARG_NP:
+    return "ARG_NP";
+  case ARG_PN:
+    return "ARG_PN";
+  case ARG_PP:
+    return "ARG_PP";
+  case ARG_NNN:
+    return "ARG_NNN";
+  case ARG_NNP:
+    return "ARG_NNP";
+  case ARG_NPN:
+    return "ARG_NPN";
+  case ARG_NPP:
+    return "ARG_NPP";
+  case ARG_PNN:
+    return "ARG_PNN";
+  case ARG_PNP:
+    return "ARG_PNP";
+  case ARG_PPN:
+    return "ARG_PPN";
+  case ARG_PPP:
+    return "ARG_PPP";
+  case ARG_PPPP:
+    return "ARG_PPPP";
+  case ARG_PPPPP:
+    return "ARG_PPPPP";
+  case ARG_PPPPPP:
+    return "ARG_PPPPPP";
+  case ARG_PPPPPPP:
+    return "ARG_PPPPPPP";
+  case ARG_PPPPPPPP:
+    return "ARG_PPPPPPPP";
+  default:
+    return "???";
+  }
+}
+
 int
 pointers_first(StgHalfWord type)
 {
@@ -279,7 +348,7 @@ print_closure(StgPtr closure,
     where = "???";
   }
 
-  i = c->header.info; 
+  i = c->header.info;
   snprintf(fmt, 4096, "%%%ds%s: %s closure at %p...\n", indent, name, where,
            closure);
   printf(fmt, "");
@@ -333,5 +402,80 @@ print_closure(StgPtr closure,
     snprintf(fmt, 4096, "%%%ds%s: print_closure: unknown layout field format: "
              "%d\n", indent, name, ctype);
     fprintf(stderr, fmt, "");
+  }
+}
+
+void
+print_function(StgPtr closure,
+               const char *name,
+               int indent,
+               stg_regset_t *regs)
+{
+  StgClosure *c = (StgClosure *)((uint64_t)closure & ~0x7);
+  const StgFunInfoTable *i;
+  char fmt[4096];
+
+  print_closure(closure, name, indent, regs);
+
+  i = (StgFunInfoTable *)c->header.info;
+  i--;
+
+  snprintf(fmt, 4096, "%%%ds%s: function info table at %p...\n", indent,
+           name, i);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: slow_apply_offset=0x%x\n", indent, name,
+           i->f.slow_apply_offset);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: fun_type: %s (%u)\n", indent, name,
+           fun_type_str(i->f.fun_type), i->f.fun_type);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: arity=%u\n", indent, name, i->f.arity);
+  printf(fmt, "");
+  snprintf(fmt, 4096, "%%%ds%s: fun_bitmap=", indent, name);
+  printf(fmt, "");
+  switch (i->f.fun_type) {
+  case ARG_GEN:
+    print_small_bitmap(i->f.b.bitmap);
+  case ARG_GEN_BIG:
+    print_large_bitmap(GET_FUN_LARGE_BITMAP(i));
+    break;
+  default:
+    print_small_bitmap(stg_arg_stuff[i->f.fun_type]);
+    break;
+  }
+  printf("\n");
+}
+
+void
+print_small_bitmap(StgWord bitmap)
+{
+  StgWord bits = BITMAP_BITS(bitmap);
+  StgWord size = BITMAP_SIZE(bitmap);
+
+  for (StgWord i = 0; i < size; i++, bits >>= 1) {
+    if (bits & 1) {
+      printf("W");
+    } else {
+      printf("P");
+    }
+  }
+}
+
+void
+print_large_bitmap(StgLargeBitmap *bitmap)
+{
+  StgWord size = bitmap->size;
+  StgWord bits;
+
+  for (StgWord i = 0, bmp = 0; i < size; i++) {
+    if (i % (8 * sizeof(StgWord)) == 0) {
+      bits = bitmap->bitmap[bmp++];
+    }
+    if (bits & 1) {
+      printf("W");
+    } else {
+      printf("P");
+    }
+    bits >>= 1;
   }
 }

@@ -3,6 +3,8 @@
 /cmake_install.cmake
 /Makefile
 .*.sw*
+*.hi
+*.o
 /src/ghc/
 /injector
 /libbootstrap.dylib
