@@ -44,3 +44,6 @@ foreign_zp a b = toInteger $ foreign_add (fromInteger a) (fromInteger b)
 
 safe_weird_zp :: Num a => a -> a -> a
 safe_weird_zp a b = a + b
+
+safe_weird_zp' :: Integer -> Integer -> Integer
+safe_weird_zp' a b = a + b + 1
