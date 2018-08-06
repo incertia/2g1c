@@ -52,7 +52,7 @@ linking it into your c executable and then performing some hooks
 
    i postulate that `unsafePerformIO` can be made to work, but i do not know
    how yet
-6. the rts has static closures for the integers `0-16`
+6. the rts has static closures for the integers `[-16,16]`
 
        (lldb) x/132x 0x10022e588
        0x10022e588: 0x001bd660 0x00000001 0xfffffff0 0xffffffff
