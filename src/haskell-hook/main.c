@@ -51,8 +51,6 @@ void install(void)
   // pointer to our own function
   // *(void **)((size_t)numinteger[1] & ~0x7) = *(void **)haskell_zp;
   ((void **)numinteger)[1] = haskell_zp;
-  // hook(old_zp, zp_stub);
-  // hook(old_zp, haskell_zp);
-  // troll
-  // hook(mul, sub);
+  // we can also hook the Num.+ stub
+  hook(old_zp, zp_stub);
 }
