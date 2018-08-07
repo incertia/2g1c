@@ -93,6 +93,28 @@ linking it into your c executable and then performing some hooks
            0x1001bd660 <+0>: inc    rbx
 
    these numbers are `stg_ap_p_fast`'d when you do something small like `4 2 +`
+7. the application **should** be single threaded, yet sometimes in `lldb` i will get haskell output in between hooked output
+
+       ...
+       R5: HEAP closure at 0x420007d380...
+       R5: tag=0
+       R5: real addr=0x420007d380
+       R5: info ptr=0x100013548
+       R5: info tbl=0x100013538
+       R5: closure type: THUNK_1_0 (16)
+       R5: closure payload pointers: 1
+       R5: closure payload non-pointers: 0
+       R5: payload[0]=0x420007d310
+       R6: null pointer
+       7
+       *Sp: STACK closure at 0x42001e7e70...
+       *Sp: tag=0
+       *Sp: real addr=0x42001e7e70
+       *Sp: info ptr=0x1001de1d8
+       *Sp: info tbl=0x1001de1c8
+       *Sp: closure type: UPDATE_FRAME (33)
+       *Sp: closure layout: 0x1
+       ...
 
 ## goals
 
