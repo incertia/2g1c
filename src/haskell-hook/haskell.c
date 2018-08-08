@@ -403,6 +403,7 @@ print_closure(StgPtr closure,
              "%d\n", indent, name, ctype);
     fprintf(stderr, fmt, "");
   }
+  fflush(stdout);
 }
 
 void
@@ -444,6 +445,7 @@ print_function(StgPtr closure,
     break;
   }
   printf("\n");
+  fflush(stdout);
 }
 
 void
