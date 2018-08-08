@@ -34,6 +34,22 @@ output on steroids:
 5
 ```
 
+## status
+
+here are things that appear to work
+
+* jumping from haskell into C and back, without breaking the runtime
+* replacing `instance Num Integer`'s `(+)` with `new_plus :: Integer -> Integer
+  -> Integer`
+* replacing `instance Num Integer`'s `(+)` with `new_plus :: Integer -> Integer
+  -> Integer` with `unsafePerformIO (return (a + b))`
+* using `>>=` (monadic bind) within `unsafePerformIO`
+
+here are things that don't work
+
+* `putStrLn` inside `unsafePerformIO`
+* functions `new_plus :: (Num a) => a -> a -> a` and directly replacing `Num.+`
+
 ## dependencies/inspirations
 
 1. [mach_inject](https://github.com/rentzsch/mach_inject)
