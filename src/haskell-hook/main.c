@@ -65,7 +65,7 @@ void install(void)
   old_zp = dlsym(RTLD_MAIN_ONLY, "base_GHCziNum_zp_info");
   zp_closure = dlsym(RTLD_MAIN_ONLY, "base_GHCziNum_zp_closure");
   haskell_zp = dlsym(RTLD_SELF, "UnsafeZZp_safezuweirdzuzzpzq_closure");
-  haskell_zp = dlsym(RTLD_SELF, "UnsafeZZp_unsafezuzzpzq_closure");
+  haskell_zp = dlsym(RTLD_SELF, "UnsafeZZp_unsafezuzzpzqzqzq_closure");
   printf("stg_arg_bitmaps: %p\n", stg_arg_stuff);
   printf("NumInteger_closure: %p\n", numinteger);
   printf("base GHC.Num +: %p\n", old_zp);

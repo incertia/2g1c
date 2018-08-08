@@ -35,6 +35,11 @@ unsafe_zp'' a b = unsafePerformIO $ do
   putStrLn $ show a ++ " + " ++ show b ++ " = " ++ show c
   return (fromInteger c)
 
+unsafe_zp''' :: Integer -> Integer -> Integer
+unsafe_zp''' a b = unsafePerformIO $ do
+  let c = a + b
+  return c
+
 -- it's hard to convert from Num to CInt (fromInteger :: Num a => Integer -> a)
 -- so we assume Integer here
 foreign_zp :: Integer -> Integer -> Integer
