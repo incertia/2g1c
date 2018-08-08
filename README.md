@@ -6,25 +6,33 @@ inject a live haskell application and do magic with both C and haskell
 
 your application:
 
-    main :: IO ()
-    main = print $ 2 + 3
+```haskell
+main :: IO ()
+main = print $ 2 + 3
+```
 
 an aggressive bystander:
 
-    new_plus :: Integer -> Integer -> Integer
-    new_plus a b = unsafePerformIO $ do
-      let c = a + b
-      putStrLn $ show a ++ " + " ++ show b ++ " = " ++ show c
-      return c
+```haskell
+new_plus :: Integer -> Integer -> Integer
+new_plus a b = unsafePerformIO $ do
+  let c = a + b
+  putStrLn $ show a ++ " + " ++ show b ++ " = " ++ show c
+  return c
+```
 
 regular output:
 
-    5
+```
+5
+```
 
 output on steroids:
 
-    2 + 3 = 5
-    5
+```
+2 + 3 = 5
+5
+```
 
 ## dependencies/inspirations
 
