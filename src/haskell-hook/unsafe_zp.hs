@@ -37,7 +37,7 @@ unsafe_zp'' a b = unsafePerformIO $ do
 
 unsafe_zp''' :: Integer -> Integer -> Integer
 unsafe_zp''' a b = unsafePerformIO $ do
-  c <- return $ a + b
+  c <- return . toInteger . length $ [1..fromInteger a] ++ [1..fromInteger b]
   return $ c + 1
 
 -- it's hard to convert from Num to CInt (fromInteger :: Num a => Integer -> a)
