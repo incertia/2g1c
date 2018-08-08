@@ -16,8 +16,6 @@ foreign import ccall "foreign_add" foreign_add :: CInt -> CInt -> CInt
 -- signature
 unsafe_zp :: (Show a, Num a) => a -> a -> a
 unsafe_zp a b = unsafePerformIO $ do
-  -- TODO: the line below will *probably* cause an infinite loop if we hook from
-  -- any (+) function
   let c = a + b
   putStrLn $ show a ++ " + " ++ show b ++ " = " ++ show c
   return c

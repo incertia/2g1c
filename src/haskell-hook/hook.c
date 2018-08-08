@@ -22,7 +22,7 @@ void hook(void *target_func, void *hook_func)
     return;
   }
 
-  err = vm_protect(mach_task_self(), (vm_address_t)target_func, 0x5, 0, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
+  err = vm_protect(mach_task_self(), (vm_address_t)target_func + 4, 0x5, 0, VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE);
   if (err) {
     fprintf(stderr, "vm_protect failed: %s\n", mach_error_string(err));
     return;
