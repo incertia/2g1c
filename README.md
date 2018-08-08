@@ -1,9 +1,30 @@
 # 2 haskells 1 hook - the tale of a non-consensual haskell jit
 
-inject a live haskell application and do magic with C
+inject a live haskell application and do magic with both C and haskell
 
-you can probably make this a non-consensual jit bit compiling haskell and
-linking it into your c executable and then performing some hooks
+## the goal
+
+your application:
+
+    main :: IO ()
+    main = print $ 2 + 3
+
+an aggressive bystander:
+
+    new_plus :: Integer -> Integer -> Integer
+    new_plus a b = unsafePerformIO $ do
+      let c = a + b
+      putStrLn $ show a ++ " + " ++ show b ++ " = " ++ show c
+      return c
+
+regular output:
+
+    5
+
+output on steroids:
+
+    2 + 3 = 5
+    5
 
 ## dependencies/inspirations
 
