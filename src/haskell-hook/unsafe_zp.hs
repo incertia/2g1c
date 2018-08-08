@@ -37,8 +37,8 @@ unsafe_zp'' a b = unsafePerformIO $ do
 
 unsafe_zp''' :: Integer -> Integer -> Integer
 unsafe_zp''' a b = unsafePerformIO $ do
-  let c = a + b
-  return c
+  c <- return $ a + b
+  return $ c + 1
 
 -- it's hard to convert from Num to CInt (fromInteger :: Num a => Integer -> a)
 -- so we assume Integer here
