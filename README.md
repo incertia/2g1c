@@ -1,4 +1,4 @@
-# non-consensual haskell jit
+# 2 haskells 1 hook - the tale of a non-consensual haskell jit
 
 inject a live haskell application and do magic with C
 
@@ -93,7 +93,8 @@ linking it into your c executable and then performing some hooks
            0x1001bd660 <+0>: inc    rbx
 
    these numbers are `stg_ap_p_fast`'d when you do something small like `4 2 +`
-7. the application **should** be single threaded, yet sometimes in `lldb` i will get haskell output in between hooked output
+7. the application **should** be single threaded, yet sometimes in `lldb` i
+   will get haskell output in between hooked output
 
        ...
        R5: HEAP closure at 0x420007d380...
@@ -115,6 +116,22 @@ linking it into your c executable and then performing some hooks
        *Sp: closure type: UPDATE_FRAME (33)
        *Sp: closure layout: 0x1
        ...
+8. with respect to `unsafePerformIO`, the issue is almost certainly the fact
+   that there are two statically linked runtimes competing with each other here.
+   in particular, within `maybePerformBlockedException`, there are several
+   checks against `END_TSO_QUEUE` and `END_BLOCKED_EXCEPTIONS_QUEUE`, both of
+   which are defined to be `stg_END_TSO_QUEUE_closure`, but because there are
+   two and everything is compiled with `rip` relative addressing, dynamic
+   patching is needed to ensure that the runtimes agree with each other. this
+   is currently done within `main.c` of `haskell-hook`, but the goal is to put
+   the logic elsewhere once we get `unsafePerformIO` working. when these values
+   are made to agree, the runtime will end up dying in
+   [`evacuate`](https://github.com/ghc/ghc/blob/ghc-8.4/rts/sm/Evac.c#L518) by
+   hitting the `default` case, probably because the `ARR_WORDS` it finds is
+   allocated in the injected runtime. `HEAP_ALLOCED_GC` is defined as a macro
+   when `USE_LARGE_ADDRESS_SPACE` is set so we cannot hook it to do what we
+   expect. if we can get heap allocations to agree between the two runtimes
+   then i suspect that we can finally get `unsafePerformIO` to work.
 
 ## goals
 
