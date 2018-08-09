@@ -1,8 +1,10 @@
-# 2 haskells 1 hook - the tale of a non-consensual haskell jit
+# 2 GHCs 1 C - the tale of a non-consensual haskell jit
 
 inject a live haskell application and do magic with both C and haskell
 
 ## the goal
+
+who would win? 2 GHC runtimes or 1 C B O I?
 
 your application:
 
