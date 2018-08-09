@@ -42,4 +42,7 @@ void inject(pid_t pid, const char* lib, void *module, void *bootstrapfn)
   }
 
   mach_error_t err = mach_inject((mach_inject_entry)bootstrapfn, lib, strlen(lib) + 1, pid, 0);
+  if (err) {
+    fprintf(stderr, "injector: failed to inject: %s\n", mach_error_string(err));
+  }
 }
