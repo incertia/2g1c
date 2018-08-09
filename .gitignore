@@ -5,6 +5,11 @@
 .*.sw*
 *.hi
 *.o
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+/_minted-2g1c/
 /src/ghc/
 /injector
 /libbootstrap.dylib
