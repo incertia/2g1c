@@ -18,6 +18,18 @@
 
 \section{Overview}
 
+The Glorious Glasgow Haskell Compiler (GHC) is the world's most popular Haskell
+compiler due to its speed, language extensions, and robustness. The Haskell
+language itself boasts incredible type safety, purity, and lazy evaluation. All
+of these things put together lead to a compiled native binary that looks
+absolutely nothing like compiled C or C++ code, or anything else that compiles
+into the standard C calling conventions. Instead, we have a binary that is
+littered with \mintinline{asm}{jmp} instructions and several hundred symbols
+whose names do not relate in any way to the source code that is almost
+undecipherable. Here, we introduce 2G1C, a new tool that is designed to ease,
+although it is still quite painful, the process of debugging compiled Haskell
+without the source.
+
 The goal of this project is to provide a framework in which users can redirect
 the control flow GHC-compiled Haskell programs. For example, if we have the
 following program
@@ -64,8 +76,7 @@ to change the behavior of \mintinline{haskell}{(+)} for negative values.
 
 \section{GHC Basics}
 
-The Glasgow Haskell Compiler (GHC) executes in several stages, best described by
-the following diagram
+GHC executes in several stages, best described by the following diagram
 
 \begin{listing}[H]
 \begin{minted}[fontsize=\small]{text}
@@ -385,13 +396,110 @@ as a very wonky (and wrong) addition to produce the following output:
 
 \begin{minted}[fontsize=\small]{text}
 welcome to the postfix stack machine calculator
-the PID for this process is 32920 for informational purposes
+the PID for this process is 33534 for informational purposes
 > 4 2 + 9000 +
 9006
-(injection happens)
+> -1 -2 +
+-3
+(injection happens here)
 > 4 2 + 9000 +
 9008
+> -1 -2 +
+1
 >
 \end{minted}
+
+We also have a pretty printer for general closures and function closures, and
+can work with them from inside C code as follows:
+
+\begin{minted}[fontsize=\small]{text}
+base GHC.Num +: STACK closure at 0x100226ef0...
+base GHC.Num +: tag=0
+base GHC.Num +: real addr=0x100226ef0
+base GHC.Num +: info ptr=0x100130338
+base GHC.Num +: info tbl=0x100130328
+base GHC.Num +: closure type: FUN_STATIC (14)
+base GHC.Num +: closure payload pointers: 0
+base GHC.Num +: closure payload non-pointers: 0
+base GHC.Num +: function info table at 0x100130310...
+base GHC.Num +: slow_apply_offset=0xffc3ff48
+base GHC.Num +: fun_type: ARG_P (5)
+base GHC.Num +: arity=1
+base GHC.Num +: fun_bitmap=P
+plusInteger: STACK closure at 0x10022c212...
+plusInteger: tag=2
+plusInteger: real addr=0x10022c210
+plusInteger: info ptr=0x1001949e0
+plusInteger: info tbl=0x1001949d0
+plusInteger: closure type: FUN_STATIC (14)
+plusInteger: closure payload pointers: 0
+plusInteger: closure payload non-pointers: 0
+plusInteger: function info table at 0x1001949b8...
+plusInteger: slow_apply_offset=0x10
+plusInteger: fun_type: ARG_PP (15)
+plusInteger: arity=2
+plusInteger: fun_bitmap=PP
+haskell_zp: STACK closure at 0x10246cce8...
+haskell_zp: tag=0
+haskell_zp: real addr=0x10246cce8
+haskell_zp: info ptr=0x10200a460
+haskell_zp: info tbl=0x10200a450
+haskell_zp: closure type: FUN_STATIC (14)
+haskell_zp: closure payload pointers: 0
+haskell_zp: closure payload non-pointers: 0
+haskell_zp: function info table at 0x10200a438...
+haskell_zp: slow_apply_offset=0x18f065
+haskell_zp: fun_type: ARG_PP (15)
+haskell_zp: arity=2
+haskell_zp: fun_bitmap=PP
+found 'cmp rax, r15 -> jb ...'
+hooked!
+> 2 3 +
+---(+)---
+BaseReg=0x100231e18
+Sp=0x42001e7e70
+SpLim=0x42001e00c0
+Hp=0x420007f010
+HpLim=0x420007ffff
+R1=0x420007a308
+R2=0x4200070ee8
+R3=0x100227f89
+R4=0x10022cf99
+R5=0x420007ec88
+R6=0x0
+MachSp=0x7ffeefbfafa8
+R1: ??? closure at 0x420007a308...
+R1: tag=0
+R1: real addr=0x420007a308
+R1: info ptr=0x100004568
+R1: info tbl=0x100004558
+R1: closure type: THUNK_1_0 (16)
+R1: closure payload pointers: 1
+R1: closure payload non-pointers: 0
+R1: payload[0]=0x1002241e1
+(SNIPPED)
+*Sp: STACK closure at 0x42001e7e70...
+*Sp: tag=0
+*Sp: real addr=0x42001e7e70
+*Sp: info ptr=0x1001de1d8
+*Sp: info tbl=0x1001de1c8
+*Sp: closure type: UPDATE_FRAME (33)
+*Sp: closure layout: 0x1
+*Sp+0x20: ??? closure at 0x420007ec10...
+*Sp+0x20: tag=0
+*Sp+0x20: real addr=0x420007ec10
+*Sp+0x20: info ptr=0x1001de098
+*Sp+0x20: info tbl=0x1001de088
+*Sp+0x20: closure type: THUNK_2_0 (18)
+*Sp+0x20: closure payload pointers: 2
+*Sp+0x20: closure payload non-pointers: 0
+*Sp+0x20: payload[0]=0x4200037930
+*Sp+0x20: payload[1]=0x420007a308
+6
+>
+\end{minted}
+
+Despite my best efforts, I was unable to find anything remotely recognizable on
+the stack or in any of the registers.
 
 \end{document}
