@@ -29,6 +29,8 @@ void install(void)
   void *maybe;
   // uint32_t offset;
   void **tso_ptr;
+  void *my_putstr;
+  void *foreign_putstr;
   uint32_t tso_offset;
 
   stg_regset_t regs = {};
@@ -66,6 +68,8 @@ void install(void)
   zp_closure = dlsym(RTLD_MAIN_ONLY, "base_GHCziNum_zp_closure");
   haskell_zp = dlsym(RTLD_SELF, "UnsafeZZp_safezuweirdzuzzpzq_closure");
   haskell_zp = dlsym(RTLD_SELF, "UnsafeZZp_unsafezuzzpzqzqzq_closure");
+  my_putstr = dlsym(RTLD_SELF, "base_GHCziIOziHandleziText_hPutStr2_info");
+  foreign_putstr = dlsym(RTLD_MAIN_ONLY, "base_GHCziIOziHandleziText_hPutStr2_info");
   printf("stg_arg_bitmaps: %p\n", stg_arg_stuff);
   printf("NumInteger_closure: %p\n", numinteger);
   printf("base GHC.Num +: %p\n", old_zp);
@@ -93,4 +97,5 @@ void install(void)
   ((void **)numinteger)[1] = haskell_zp;
   // we can also hook the Num.+ stub
   hook(old_zp, zp_stub);
+  // hook(my_putstr, foreign_putstr);
 }
